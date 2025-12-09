@@ -2,10 +2,13 @@
 
 - https://www.youtube.com/watch?v=Fr9GqFwl6NM (octobre 2025)
 
-# Introduction
+# About the exam
 
 This course is designed for people who want to take the **CKA** examination.  
 Which requires solving multiple hands-on tasks from a CLI within a 2-hour time limit.  
+Candidates get two exam attempts (one free retake) and access to two Killer.sh simulators for practice.
+
+# Why was Kubernetes invented?
 
 In modern software development, applications are often packaged into lightweight portable units called containers.  
 Managing hundreds or thousands of containers across a fleet of machines presents significant challenges.  
@@ -28,6 +31,8 @@ Kubernetes is an open-source container orchestrator that automates the deploymen
 ## Zero-Downtime Deployments
 
 - facilitates rolling updates and rollbacks, ensuring service availability
+
+# Core Philosophy: Declarative Configuration
 
 
 
