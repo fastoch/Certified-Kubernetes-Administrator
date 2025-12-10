@@ -34,6 +34,25 @@ Kubernetes is an open-source container orchestrator that automates the deploymen
 
 # Core Philosophy: Declarative Configuration
 
+- Kubernetes operates on a declarative model
+- You define the desired state of the system in **YAML manifest files**
+  - What applications should run
+  - How many replicas
+  - What network policies to enforce
+  - and so on...
+
+Once these manifests are applied to the cluster, Kubernetes controllers continuously work in a **"Control Loop"** to match the **actual state** to the **desired state**.  
+- For example, if a pod crashes, a controller notices the discrepancy between the desired replica count and the actual count, and creates a new one
+
+This model is the foundation of Kubernetes self-healing and automation capabilities.  
+
+# Kubernetes Fundamentals & Lab Setup
+
+## Understanding the Kubernetes Architecture
+
+- Kubernetes follows a **control plane-worker node** architecture (which is a **master-slave** relationship)
+- 
 
 
-3/124
+
+5/124
