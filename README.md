@@ -90,4 +90,15 @@ They are managed by the Control Plane and contain all the necessary services to 
   - Kubernetes supports multiple container runtime such as `containerd` and `CRI-O`
   - The kubelet communicates with the container runtime using the CRI (container runtime interface) to manage container operations like pulling images, and stopping or starting containers
 
+## Core Kubernetes Objects
+
+Kubernetes objects are persistent entities that represent your cluster's desired state.  
+By creating an object, you are telling the kubernetes system what you want your cluster's workload to look like.  
+
+### Pods 
+
+Pods are the smallest and most fundamental deployable unit in Kubernetes.  
+They represent a single instance of a running process in your cluster.  
+
+
 8/124
