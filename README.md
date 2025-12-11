@@ -59,13 +59,35 @@ This model is the foundation of Kubernetes self-healing and automation capabilit
 The Control Plane is the set of components responsible for container orchestration and maintaining the desired state of the cluster.  
 It can run on a single machine or be replicated across multiple machines for high-availability.  
 
-- **kube-apiserver**: the central hub and frontend of the Control Plane. All communication to and from the cluster goes through the API server.
+- **kube-apiserver**: the central hub and frontend of the Control Plane.
+  - All communication to and from the cluster goes through the API server.
   - it exposes a Kubernetes API, validates and processes all API requests, and coordinates all processes between control plane and worker nodes.
-- **etcd**: the cluster's single source of truth; a consistent and highly-available distributed key-value store for all cluster data.
-  - all cluster data includes its configuration, state, and metadata
+- **etcd**: the cluster's single source of truth
+  - a consistent and highly-available distributed key-value store for all cluster data
+  - all cluster data = its configuration, state, and metadata
   - for security and consistency, direct access to **etcd** is restricted. All interactions must go through the **kube-apiserver**.
-- **kube-scheduler**: the matchmaker. Watches for new pods and assigns them to the best Node.
-- kube-controller-manager: the autopilot. Runs various controller processes (Node controller, Replication controller, etc.) to maintain the desired state.
+- **kube-scheduler**: the cluster's matchmaker.
+  - Watches for new pods that do not yet have a node assigned, and assigns them to the best node.
+  - the node selection is based on a complex set of factors: resource requirements, hardware constraints, affinity and anti-affinity rules, and data locality
+- **kube-controller-manager:** the cluster's autopilot.
+  - Runs various controller processes (Node controller, Replication controller, etc.) to maintain the desired state
+  - each controller runs a control loop that watches the shared state of the cluster (stored in **etcd**) through the kube-apiserver, and works to move the current state towards the desired state
+ 
+### Worker Nodes
 
+They are the machines where your applications run (VMs or actual computers).  
+They are managed by the Control Plane and contain all the necessary services to run containers.  
 
-6/124
+- **kubelet**: the primary "node agent", that runs on each worker node.
+  - it communicates with the kube-apiserver to receive instructions and report the status of the node and its containers 
+  - Ensures that the containers described in Pod specifications are running and healthy.
+  - Manages the container lifecycle on its node.
+- **kube-proxy**: a network proxy that runs on each node.
+  - a fundamental part of the Kubernetes service concept
+  - maintains network rules on the node to allow communication to your pods from both inside and outside the cluster
+  - it can use various modes to direct traffic destined for a service's virtual IP to the correct backend pod
+- **Container Runtime**: the software responsible for running the containers
+  - Kubernetes supports multiple container runtime such as `containerd` and `CRI-O`
+  - The kubelet communicates with the container runtime using the CRI (container runtime interface) to manage container operations like pulling images, and stopping or starting containers
+
+8/124
