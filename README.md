@@ -102,8 +102,28 @@ By creating an object, you are telling the kubernetes system what you want your 
 - A pod encapsulates one or more tightly coupled containers that share storage and network resources 
 - While a pod can contain multiple containers, the most common pattern is **one container per pod**
 
-### Replica sets & Deployments
+### ReplicaSets & Deployments
 
+- **ReplicaSet**: ensures a specified number of identical Pods (replicas) are running at any given time.  
+- **Deployment**: a higher-level object that manages ReplicaSets
+  - it provides declarative updates to pods
+  - handles rolling updates and rollbacks
 
+You describe the desired state in a deployment, and the deployment controller changes the actual state to match the desired state at a controlled rate.  
 
-9/124
+Deployments are the standard and recommended way to manage stateless applications in Kubernetes.  
+
+### Services
+
+- Pods are ephemeral and their IP addresses change
+- a service provides a stable endpoint to access a logical set of pods
+- it acts as an abstraction, defining a policy by which to access the pods, and providing a stable virtual IP address (**ClusterIP**) and DNS name
+- Traffic to a service is automatically load-balanced to the appropriate backend Pods
+
+### Namespaces
+
+- They provide a mechanism for isolating groups of resources within a single cluster.  
+- They are a way to divide cluster resources between multiple users or teams
+- Resource names must be unique within a namespace, but not across them
+
+10/124
