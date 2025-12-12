@@ -97,8 +97,13 @@ By creating an object, you are telling the kubernetes system what you want your 
 
 ### Pods 
 
-Pods are the smallest and most fundamental deployable unit in Kubernetes.  
-They represent a single instance of a running process in your cluster.  
+- Pods are the smallest and most fundamental deployable unit in Kubernetes.  
+- They represent a single instance of a running process in your cluster.  
+- A pod encapsulates one or more tightly coupled containers that share storage and network resources 
+- While a pod can contain multiple containers, the most common pattern is **one container per pod**
+
+### Replica sets & Deployments
 
 
-8/124
+
+9/124
