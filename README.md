@@ -126,4 +126,27 @@ Deployments are the standard and recommended way to manage stateless application
 - They are a way to divide cluster resources between multiple users or teams
 - Resource names must be unique within a namespace, but not across them
 
-10/124
+## Setting up your CKA practice environment
+
+We will create a local cluster using **kubeadm**, the same tool used for many production clusters.  
+
+### Prerequisites
+
+Before installing Kubernetes, each machine or VM intended to be a node in the cluster must meet certain requirements:
+- a compatible Linux host
+- at least 2 GB of RAM per machine
+- at least 2 CPUs for the control-plane node
+- full network connectivity between all machines
+
+### First step: installing a container runtime
+
+Kubernetes requires a container runtime on each node.  
+
+While Docker was historically popular, the CKA exam environment and modern clusters typically use runtimes that directly implement a CRI (container runtime interface) 
+such as containerd or CRI-O. We'll install **containerd**.  
+
+The following commands must be run on all nodes (control plane and worker nodes):
+- load required kernel modules: ``
+
+
+12/124
