@@ -230,16 +230,59 @@ sudo cp /etc/fstab /etc/fstab.bak
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
 The second line makes a backup of the fstab file, just in case, as errors could break the boot process.
-The third line is there to comment out swap entries in the /etc/fstab file.
+The third line is there to comment out swap entries in the /etc/fstab file.  
 
-Now, let's install Kubernetes on my Fedora 43 node:
-```batch
-sudo dnf install kubectl kubelet kubeadm kubernetes-cni helm
+For disabling zram (Fedora's default), we need to create an empty config to override default settings: 
+```bash
+sudo touch /etc/systemd/zram-generator.conf
 ```
-Fedora 43 includes Kubernetes packages directly in its standard repositories, so no external repo addition is typically needed.
+
+Now, I can install Kubernetes on my Fedora 43 node:
+```batch
+sudo dnf install kubectl kubelet kubeadm 
+```
+Fedora 43 includes Kubernetes packages directly in its standard repositories, so no external repo addition is typically needed.  
+
+### Step 3: Preventing accidental upgrades
+
+We need to prevent accidental upgrades, which is important for maintaining a stable cluster version.  
+- For that, identify Kubernetes packages on your system (Fedora 43 in my case):
+```bash
+sudo dnf list --installed | grep kubernetes
+```
+- Then, lock the version for these packages with:
+```bash
+sudo dnf install dnf-plugins-core
+sudo dnf versionlock add <Kubernetes_package_names>
+```
+
+You can check locked packages with `dnf versionlock list`.
 
 ### Step 3: Configuring a single node cluster
 
+For this practice environment, a single node cluster is sufficient.  
+
+First, we need to enable kubelet:
+```bash
+sudo systemctl enable kubelet
+```
+
+Then, we need to initialize our machine as a control plane:
+```bash
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+```
+
+Next, we will configure kube-controller:
+``` bash
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+The first line creates a directory dedicated to the kube-controller config.  
+The second line copies the cluster administrator config file created by kubeadm to the standard location.  
+The third line changes the file ownership so the current non-root user can securely interact with the cluster by running kubectl commands.  
 
 
-18/124 
+
+
+20/124 
