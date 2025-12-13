@@ -258,9 +258,9 @@ sudo dnf versionlock add <Kubernetes_package_names>
 
 You can check locked packages with `dnf versionlock list`.
 
-### Step 4: Configuring a single node cluster
+### Step 4: Configuring a single-node cluster
 
-For this practice environment, a single node cluster is sufficient.  
+For this practice environment, a single-node cluster is sufficient.  
 
 1. First, we need to enable kubelet:
 ```bash
@@ -283,14 +283,73 @@ The second line copies the cluster administrator config file (created by kubeadm
 The third line changes the file ownership so the current non-root user can securely interact with the cluster by running kubectl commands.  
 
 4. By default, the control plane node is **tainted** to prevent regular application pods from being scheduled on it.  
-But since we'll be running a single node cluster, that taint must be removed via this command: 
+But since we'll be running a single-node cluster, that taint must be removed via this command: 
 ```bash
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
-You'll get a confirmation message that says `node/<hostname> untainted`.  
+You'll get a confirmation message that your node has been untainted.  
 
-5. 
+5. The next command will install a CNI plugin, the Flannel one:
+```bash
+kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+```
+The cluster is not fully functional until a Container Network Interface (CNI) plugin is installed.  
+Without it, pods cannot communicate with each other, and coredns pods will not start correctly.  
+
+After installing the CNI plugin, your node status should be "Ready", you can check that via `kubectl get nodes`.  
+
+And you can run `kubectl get pods -A` to show all your 7 cluster's native pods, along with the flannel pod.  
+Make sure all these pods are "running".  
+
+---
+
+>[!warning]
+I got an issue with my coredns pods that were stuck at "ContainerCreating", while all other pods were running.  
+I ran `ls /opt/cni/bin` and saw that there was no loopback plugin, only the flannel one.  
+I installed all Linux CNI plugins via the following command:
+```bash
+curl -L "https://github.com/containernetworking/plugins/releases/download/v1.9.0/cni-plugins-linux-amd64-v1.9.0.tgz" | sudo tar -C /opt/cni/bin -xz`
+```
+Then I ran `kubectl get pods -A`, and this time all pods were running!  
+
+The latest version of these CNI plugins can be found here: https://github.com/containernetworking/plugins/releases/ 
+
+---
+
+# Cluster Architecture, Installation & Configuration
+
+We now have a functional single-node K8s cluster.  
+This section will cover the core competencies of a K8s administrator: building, managing, and securing a multi-node cluster.  
+
+In this section, we will:
+- expand our single-node setup into a production-style, multi-node cluster,
+- manage its lifecycle through upgrades and backups,
+- implement high-availability,
+- and configure access control and application management tooling.
+
+## Bootstrapping a Multi-Node Cluster with `kubeadm`
+
+Building a multi-node cluster involves a coordinated setup process across all machines.  
+The following steps assume you have at least 2 nodes, one control plane, and one worker node.  
+
+### Preparing all Nodes
+
+The prerequisite steps must be completed on every node:
+- ensure **unique** hostnames, MAC addresses, and product_uuids
+- disable swap memory
+- configure required kernel modules and sysctl settings (as done in the previous section)
+- install a container runtime (containerd) with the systemd cgroup driver
+- install kubeadm, kubelet, kubectl, and place them on hold
+
+If your nodes are VMs (virtual machines), you need to edit their settings and make sure their IP and MAC addresses are different.  
+You also need to set the network mode to "bridged" (in most cases, the default network mode is "shared").  
+
+### 
+
+We assume all nodes have been set up the same way we've set up our single-node cluster, except the control plane must remain tainted this time.  
 
 
 
-20/124 
+
+
+23/124 
