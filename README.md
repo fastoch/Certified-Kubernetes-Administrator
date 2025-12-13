@@ -16,6 +16,9 @@ Managing hundreds or thousands of containers across a fleet of machines presents
 Kubernetes addresses these challenges by providing a robust framework for running distributed systems resiliently.  
 Kubernetes is an open-source container orchestrator that automates the deployment, scaling, and management of containerized applications.  
 
+>[!note]
+>The "K8s" abbreviation for Kubernetes comes from "K + 8 letters + s". Kubernetes means "helmsman" or "pilot".
+
 # Core Benefits of Kubernetes
 
 ## Self-healing
@@ -73,7 +76,7 @@ It can run on a single machine or be replicated across multiple machines for hig
   - Runs various controller processes (Node controller, Replication controller, etc.) to maintain the desired state
   - each controller runs a control loop that watches the shared state of the cluster (stored in **etcd**) through the kube-apiserver, and works to move the current state towards the desired state
  
-### Worker Nodes
+### Worker Nodes (also called "workers")
 
 They are the machines where your applications run (VMs or actual computers).  
 They are managed by the Control Plane and contain all the necessary services to run containers.  
@@ -138,7 +141,7 @@ Before installing Kubernetes, each machine or VM intended to be a node in the cl
 - at least 2 CPUs for the control-plane node
 - full network connectivity between all machines
 
-### First step: installing a container runtime
+### Step 1: installing and configuring a container runtime
 
 Kubernetes requires a container runtime on each node.  
 
@@ -148,7 +151,7 @@ such as **containerd** or **CRI-O**. We'll install **containerd**.
 The following commands must be run on all nodes (control plane + worker nodes) and require to use the Bash shell:
 
 1. Let's ensure each node loads the kernel modules required for K8s:
-```fish
+```bash
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -159,13 +162,65 @@ This file will be read by the system during boot, and these modules will be auto
 
 `cat` reads all subsequent lines as input until it encounters the EOF delimiter.  
 `tee` copies stdin to both stdout and the specified file (k8s.conf)  
-`overlay` enables overlay filesystem support for container storage  
-`br_netfilter` allows iptables filtering on bridged network traffic (K8s networking relies on the kernel's ability to see bridged traffic)
+`overlay` enables overlay filesystem support for container storage, this is the preferred storage driver used by modern container runtimes.  
+`br_netfilter` allows iptables filtering on bridged network traffic (K8s networking relies on the kernel's ability to see bridged traffic).
 
 2. Then, let's activate these modules so we don't have to reboot right away:
-```fish
+```bash
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
 
-13/124
+Now, Kubernetes components can start immediately and find the networking features they need.  
+
+3. Next, let's make sure iptables correctly process bridged traffic, which is important for kube-proxy and the CNI plugin (container network interface):
+```bash
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+```
+This creates another config file that will be read each time the system boots.  
+The second line enables iptables rules on bridged traffic, which is crucial for Kubernetes pod networking.  
+The next line does the same for IPv6.  
+The last line activates IP forwarding for container-to-container routing.  
+
+Then, we run the following command to activate these kernel settings without having to reboot the system:
+```bash
+sudo sysctl --system
+```
+
+4. Now we can finally install containerd (update your system first):
+```bash
+sudo dnf install containerd
+```
+The above command is for installing containerd on fedora, and will differ depending on your Linux system.
+
+5. Now we can configure containerd. We'll generate the default config file, then modify it to use the system cgroup driver:
+```bash
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+```
+The first line creates the directory that will host the containerd config file.  
+The second line generates the default config file.  
+The third line changes the setting `SystemdCgroup` from "false" to "true" in the containerd config file.  
+
+>[!important]
+>The kubelet and the container runtime must use the same cgroup driver to properly manage resource limits.  
+
+Now, we just have to restart and enable containerd:
+```bash
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+```
+
+### Step 2: installing the Kubernetes binaries
+
+Once again, this needs to be done on all nodes.  
+
+
+
+
+16/124
