@@ -143,10 +143,29 @@ Before installing Kubernetes, each machine or VM intended to be a node in the cl
 Kubernetes requires a container runtime on each node.  
 
 While Docker was historically popular, the CKA exam environment and modern clusters typically use runtimes that directly implement a CRI (container runtime interface) 
-such as containerd or CRI-O. We'll install **containerd**.  
+such as **containerd** or **CRI-O**. We'll install **containerd**.  
 
-The following commands must be run on all nodes (control plane and worker nodes):
-- load required kernel modules: ``
+The following commands must be run on all nodes (control plane + worker nodes) and require to use the Bash shell:
 
+1. Let's ensure each node loads the kernel modules required for K8s:
+```fish
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+```
+This command creates a config file which contains the specified Linux kernel modules:  overlay and br_netfilter.  
+This file will be read by the system during boot, and these modules will be automatically loaded into the kernel every time the system starts.  
 
-12/124
+`cat` reads all subsequent lines as input until it encounters the EOF delimiter.  
+`tee` copies stdin to both stdout and the specified file (k8s.conf)  
+`overlay` enables overlay filesystem support for container storage  
+`br_netfilter` allows iptables filtering on bridged network traffic (K8s networking relies on the kernel's ability to see bridged traffic)
+
+2. Then, let's activate these modules so we don't have to reboot right away:
+```fish
+sudo modprobe overlay
+sudo modprobe br_netfilter
+```
+
+13/124
