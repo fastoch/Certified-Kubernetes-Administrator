@@ -262,17 +262,17 @@ You can check locked packages with `dnf versionlock list`.
 
 For this practice environment, a single node cluster is sufficient.  
 
-First, we need to enable kubelet:
+1. First, we need to enable kubelet:
 ```bash
 sudo systemctl enable kubelet
 ```
 
-Then, we need to initialize our machine as a control plane:
+2. Then, we need to initialize our machine as a control plane:
 ```bash
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
 
-Next, we will configure kube-controller:
+3. Next, we will configure kube-controller:
 ``` bash
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -282,17 +282,14 @@ The first line creates a directory dedicated to the kube-controller config.
 The second line copies the cluster administrator config file (created by kubeadm) to the standard location.  
 The third line changes the file ownership so the current non-root user can securely interact with the cluster by running kubectl commands.  
 
-By default, the control plane node is **tainted** to prevent regular application pods from being scheduled on it.  
-But since we'll be running a single node cluster, that taint must be removed.  
-- To remove that taint, first run `kubectl get nodes -o wide` to show your node's information, including its name.
-- Then, run `kubectl describe node <node-name>` and look at the **Taints** section, which should be the sixth one.
+4. By default, the control plane node is **tainted** to prevent regular application pods from being scheduled on it.  
+But since we'll be running a single node cluster, that taint must be removed via this command: 
+```bash
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+```
+You'll get a confirmation message that says `node/<hostname> untainted`.  
 
->[!warning]
-Typically, the Taints section should only have 1 entry: `node-role.kubernetes.io/control-plane:NoSchedule`  
-If you also have `node.kubernetes.io/not-ready:NoSchedule`, this means something's wrong.  
-In such case, run `kubectl get nodes`, it should indicate that your node is NotReady.  
-If so, run `sudo systemctl restart containerd` followed by `sudo systemctl restart kubelet`.  
-Then run `kubectl get nodes` to make sure your node's status transitions to "Ready".
+5. 
 
 
 
