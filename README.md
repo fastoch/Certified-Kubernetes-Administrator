@@ -229,7 +229,7 @@ sudo swapoff -a
 sudo cp /etc/fstab /etc/fstab.bak
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
-The second line makes a backup of the fstab file, just in case, as errors could break the boot process.
+The second line makes a backup of the fstab file, just in case, as errors could break the boot process.  
 The third line is there to comment out swap entries in the /etc/fstab file.  
 
 For disabling zram (Fedora's default), we need to create an empty config to override default settings: 
@@ -258,7 +258,7 @@ sudo dnf versionlock add <Kubernetes_package_names>
 
 You can check locked packages with `dnf versionlock list`.
 
-### Step 3: Configuring a single node cluster
+### Step 4: Configuring a single node cluster
 
 For this practice environment, a single node cluster is sufficient.  
 
