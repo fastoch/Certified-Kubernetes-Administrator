@@ -344,12 +344,36 @@ The prerequisite steps must be completed on every node:
 If your nodes are VMs (virtual machines), you need to edit their settings and make sure their IP and MAC addresses are different.  
 You also need to set the network mode to "bridged" (in most cases, the default network mode is "shared").  
 
-### 
+### Configuring our control plane
 
 We assume all nodes have been set up the same way we've set up our single-node cluster, except the control plane must remain tainted this time.  
 
+The control plane is the node that manages the entire cluster.  
+
+1. If using the same node that we've been using for our single-node cluster, we can start by deleting the current cluster:
+```bash
+sudo kubeadm reset -f
+```
+
+2. Then, we need the IP address of our control plane
+```bash
+hostname -I | awk '{print $1}'
+```
+The output should be something like 192.168.1.x, this will be used in the next command as our control plane IP address.
+
+2. Create a new cluster:
+```bash
+sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<control_plane_IP_address>
+```
+The above IP range is the common default for Calico (another CNI plugin).  
+The previous IP range (10.244.0.0/16) was the default for Flannel.  
+
+The private IP address of our control plane needs to be set so other nodes can communicate with it.  
+
+If your get an error from the previous command, make sure the swap is disabled.  
 
 
+3. 
 
 
-23/124 
+24/124 
