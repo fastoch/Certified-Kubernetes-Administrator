@@ -216,11 +216,30 @@ sudo systemctl restart containerd
 sudo systemctl enable containerd
 ```
 
-### Step 2: installing the Kubernetes binaries
+### Step 2: installing Kubernetes
 
-Once again, this needs to be done on all nodes.  
+Once again, in a real production cluster, the following needs to be done on all nodes.
+
+>[!important]
+>The kubelet component requires **swap** to be disabled to ensure predictable resource management and performance.
+
+So let's disable swap and make this setting persistent across reboots:
+```bash
+sudo swapoff -a
+sudo cp /etc/fstab /etc/fstab.bak
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+```
+The second line makes a backup of the fstab file, just in case, as errors could break the boot process.
+The third line is there to comment out swap entries in the /etc/fstab file.
+
+Now, let's install Kubernetes on my Fedora 43 node:
+```batch
+sudo dnf install kubectl kubelet kubeadm kubernetes-cni helm
+```
+Fedora 43 includes Kubernetes packages directly in its standard repositories, so no external repo addition is typically needed.
+
+### Step 3: Configuring a single node cluster
 
 
 
-
-16/124
+18/124 
