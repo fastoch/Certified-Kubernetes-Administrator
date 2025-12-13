@@ -141,7 +141,7 @@ Before installing Kubernetes, each machine or VM intended to be a node in the cl
 - at least 2 CPUs for the control-plane node
 - full network connectivity between all machines
 
-### Step 1: installing and configuring a container runtime
+### Step 1: installing and configuring a container runtime 
 
 Kubernetes requires a container runtime on each node.  
 
@@ -279,9 +279,20 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 The first line creates a directory dedicated to the kube-controller config.  
-The second line copies the cluster administrator config file created by kubeadm to the standard location.  
+The second line copies the cluster administrator config file (created by kubeadm) to the standard location.  
 The third line changes the file ownership so the current non-root user can securely interact with the cluster by running kubectl commands.  
 
+By default, the control plane node is **tainted** to prevent regular application pods from being scheduled on it.  
+But since we'll be running a single node cluster, that taint must be removed.  
+- To remove that taint, first run `kubectl get nodes -o wide` to show your node's information, including its name.
+- Then, run `kubectl describe node <node-name>` and look at the **Taints** section, which should be the sixth one.
+
+>[!warning]
+Typically, the Taints section should only have 1 entry: `node-role.kubernetes.io/control-plane:NoSchedule`  
+If you also have `node.kubernetes.io/not-ready:NoSchedule`, this means something's wrong.  
+In such case, run `kubectl get nodes`, it should indicate that your node is NotReady.  
+If so, run `sudo systemctl restart containerd` followed by `sudo systemctl restart kubelet`.  
+Then run `kubectl get nodes` to make sure your node's status transitions to "Ready".
 
 
 
