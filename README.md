@@ -267,7 +267,7 @@ For this practice environment, a single-node cluster is sufficient.
 sudo systemctl enable kubelet
 ```
 
-2. Then, we need to initialize our machine as a control plane:
+2. Then, we need to initialize our machine as a K8s control plane:
 ```bash
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
@@ -361,7 +361,7 @@ hostname -I | awk '{print $1}'
 ```
 The output should be something like 192.168.1.x, this will be used in the next command as our control plane IP address.
 
-3. Create a new cluster:
+3. Create a new cluster and make the current machine its control plane:
 ```bash
 sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<control_plane_IP_address>
 ```
@@ -377,6 +377,12 @@ The output of the previous command is important.
 It issues a `kubeadm join` command that provides a token and a discovery token CA certificate hash.  
 We need to copy this entire command and save it for later. We'll need it to connect the worker nodes to our control plane.
 
- 
+4. Next we're going to install a CNI plugin (Calico) on our control plane:
+```bash
 
-24/124 
+```
+Immediately after initialization, the status of our control plane node is "NotReady". We can check that via `kubectl get nodes`.  
+Installing a CNI plugin will make it transition to "Ready".  
+
+
+25/124 
