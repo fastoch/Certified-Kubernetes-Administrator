@@ -361,7 +361,7 @@ hostname -I | awk '{print $1}'
 ```
 The output should be something like 192.168.1.x, this will be used in the next command as our control plane IP address.
 
-2. Create a new cluster:
+3. Create a new cluster:
 ```bash
 sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=<control_plane_IP_address>
 ```
@@ -372,8 +372,11 @@ The private IP address of our control plane needs to be set so other nodes can c
 
 If your get an error from the previous command, make sure the swap is disabled.  
 
+>[!important]
+The output of the previous command is important.  
+It issues a `kubeadm join` command that provides a token and a discovery token CA certificate hash.  
+We need to copy this entire command and save it for later. We'll need it to connect the worker nodes to our control plane.
 
-3. 
-
+ 
 
 24/124 
