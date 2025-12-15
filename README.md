@@ -381,8 +381,12 @@ We need to copy this entire command and save it for later. We'll need it to conn
 ```bash
 
 ```
-Immediately after initialization, the status of our control plane node is "NotReady". We can check that via `kubectl get nodes`.  
-Installing a CNI plugin will make it transition to "Ready".  
+Immediately after initialization, our control plane node will have a "NotReady" status, because it lacks a network plugin.  
+We can check that via `kubectl get nodes`.  
+Installing a CNI plugin will make its status transition to "Ready".  
+
+>[!important]
+>A cluster won't be functional until a CNI is installed.
 
 
 25/124 
